@@ -1,0 +1,24 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Reading {
+  time        DateTime @default(now())
+  location    String
+  temperature Float?
+  humidity    Float?
+  pm1_0       Float?
+  pm2_5       Float?
+  pm4_0       Float?
+  pm10        Float?
+  co2         Float?
+  voc         Int?
+  nox         Int?
+
+  @@id([time, location])
+  @@map("readings")
+}
