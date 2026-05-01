@@ -1,6 +1,6 @@
 {
   description = "air-monitor-api-server";
-  inputs.nixpkgs.url    = "github:NixOS/nixpkgs/nixpkgs-unstable";
+  inputs.nixpkgs.url    = "github:NixOS/nixpkgs/nixos-unstable";
   inputs.flake-utils.url = "github:numtide/flake-utils";
 
   outputs = { nixpkgs, flake-utils, ... }:
@@ -12,10 +12,17 @@
             nodejs_22
             typescript-language-server
             prisma
-            openssl   # required by Prisma client at build time
+            prisma-engines
+            openssl
+            postgresql
           ];
           shellHook = ''
             echo "Node $(node --version)"
+            export PKG_CONFIG_PATH="${pkgs.openssl.dev}/lib/pkgconfig"
+            export PRISMA_SCHEMA_ENGINE_BINARY="${pkgs.prisma-engines}/bin/schema-engine"
+            export PRISMA_QUERY_ENGINE_BINARY="${pkgs.prisma-engines}/bin/query-engine"
+            export PRISMA_QUERY_ENGINE_LIBRARY="${pkgs.prisma-engines}/lib/libquery_engine.node"
+            export PRISMA_FMT_BINARY="${pkgs.prisma-engines}/bin/prisma-fmt"
           '';
         };
       });
