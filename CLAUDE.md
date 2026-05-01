@@ -17,7 +17,6 @@
 
 ## Notes
 - Schema and migrations live in `prisma/` in this repo; `prisma.config.ts` reads `DATABASE_URL` from env
-- `@prisma/client` is pinned exact (no `^`) to match the local `prisma` dev dependency version
 - TimescaleDB-specific queries (time_bucket, continuous aggregates) must be raw SQL
 - LISTEN/NOTIFY uses a dedicated `pg` client — Prisma does not support it
 - The ingestor owns only a Zod schema for payload validation — no Prisma dependency there
