@@ -14,10 +14,10 @@ model Reading {
   pm1_0       Float?
   pm2_5       Float?
   pm4_0       Float?
-  pm10        Float?
-  co2         Float?
-  voc         Int?
-  nox         Int?
+  pm10_0      Float?
+  co2         Int?
+  voc_index   Int?
+  nox_index   Int?
 
   @@id([time, location])
   @@map("readings")

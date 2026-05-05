@@ -15,6 +15,10 @@
 - Lint:     `npm run lint`
 - Format:   `npm run format`
 
+## DB Setup (after a reset)
+1. Ensure TimescaleDB is installed on the server
+2. Run `npx prisma migrate deploy` — the migration enables the extension and creates the hypertable
+
 ## Notes
 - Schema and migrations live in `prisma/` in this repo; `prisma.config.ts` reads `DATABASE_URL` from env
 - TimescaleDB-specific queries (time_bucket, continuous aggregates) must be raw SQL

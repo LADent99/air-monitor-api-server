@@ -11,9 +11,7 @@ TimescaleDB
   └── NOTIFY — pushed to connected clients over WebSocket
 ```
 
-The Prisma schema and migrations live in [`@air-monitor/db`](https://github.com/LADent99/air-monitor-db).
-This service installs its own `@prisma/client` (pinned to match the db package's version) and
-generates the client pointing at the db package's schema.
+The Prisma schema and migrations live in `prisma/` in this repo.
 
 ## Setup
 
@@ -24,6 +22,11 @@ npm run generate         # must run inside nix shell
 cp .env.example .env     # fill in DATABASE_URL
 ```
 
+## DB Setup (after a reset)
+
+1. Ensure TimescaleDB is installed on the server
+2. Run `npx prisma migrate deploy` — the migration enables the TimescaleDB extension and creates the hypertable
+
 ## Running
 
 ```bash
@@ -31,20 +34,6 @@ npm run start:dev    # watch mode
 npm run start:prod   # production
 ```
 
-## After updating @air-monitor/db
-
-When the db package is updated (schema changes, Prisma version bumps), re-run from within the nix shell:
-
-```bash
-npm install && npm run generate && npm run build
-```
-
-`npm run generate` uses `node_modules/@air-monitor/db/prisma/schema.prisma` since this repo
-has no local schema. It must run inside the nix shell — Prisma needs the engine binaries set
-via env vars in `flake.nix`.
-
-If the db package upgrades its Prisma version, update `@prisma/client` in `package.json` to
-match exactly (no `^`) or the generated types will diverge.
 
 ## Environment Variables
 
