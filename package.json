@@ -4,9 +4,7 @@
   "private": true,
   "scripts": {
     "build": "nest build",
-    "start": "nest start",
-    "start:dev": "nest start --watch",
-    "start:prod": "node dist/main",
+    "dev": "nest start --watch",
     "generate": "prisma generate",
     "db:push": "prisma db push",
     "db:pull": "prisma db pull",
@@ -31,10 +29,14 @@
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.0",
+    "@eslint/js": "^10.0.1",
     "@types/node": "^20.0.0",
     "@types/pg": "^8.11.0",
-    "prisma": "7.7.0",
-    "ts-node": "^10.9.0",
-    "typescript": "^5.0.0"
+    "tsx": "^4.21.0",
+    "eslint": "^10.3.0",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.8.3",
+    "typescript": "^5.0.0",
+    "typescript-eslint": "^8.59.2"
   }
 }
