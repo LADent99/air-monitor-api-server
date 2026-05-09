@@ -24,3 +24,4 @@
 - [x] .claude/settings.json — hooks for schema, migration, helm, force push protection
 - [x] dev/ directory structure and ADR template
 - [x] .gitignore updated
+- [x] .claudeignore — excludes node_modules, lock files, .env*, dist, .direnv
