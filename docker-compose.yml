@@ -1,0 +1,19 @@
+services:
+  timescaledb:
+    image: timescale/timescaledb:latest-pg16
+    environment:
+      POSTGRES_USER: airmonitor
+      POSTGRES_PASSWORD: airmonitor
+      POSTGRES_DB: airdb_test
+    ports:
+      - "5433:5432"
+    volumes:
+      - timescaledb_test_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U airmonitor -d airdb_test"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  timescaledb_test_data:

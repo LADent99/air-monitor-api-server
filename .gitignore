@@ -21,3 +21,10 @@ npm-debug.log*
 # IDE
 .idea/
 .cursor*
+
+# Test environment — copy .env.test.example to .env.test and fill in
+.env.test
+
+# Dev docs scratch files
+dev/scratch/
+*.tmp

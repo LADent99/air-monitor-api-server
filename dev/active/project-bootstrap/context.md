@@ -27,16 +27,21 @@
 - **Helm secret ref** — `existingSecret: air-monitor-db-credentials` in values.yaml; never put credentials in chart
 - **PostToolUse hook** — runs `npm run build` (not `tsc --noEmit`) to catch errors fast
 
-## Gotchas Found
-
-- `python3` not available in the nix shell — hooks use `node -e` instead
-- `prisma generate` must run inside nix shell — documented in CLAUDE.md
-- Helm readiness/liveness probes expect a `/health` endpoint — not yet implemented
-
 ## Still Needs Manual Action
 
 - Fill in ECR repo URL in `helm/air-monitor-api-server/values.yaml`
 - Create `air-monitor` namespace in k3s
 - Create `air-monitor-db-credentials` secret in cluster
-- Copy `.env.test.example` → `.env.test` and verify docker-compose DB connects
-- Add `/health` endpoint before first Helm deploy
+
+## Gotchas Found
+
+- `python3` not available in the nix shell — hooks use `node -e` instead
+- `prisma generate` must run inside nix shell — documented in CLAUDE.md
+- Helm readiness/liveness probes expect a `/health` endpoint — implemented
+- **Prisma 7 breaking change**: `PrismaClient()` requires a driver adapter (`@prisma/adapter-pg`) — no longer reads `DATABASE_URL` from env at runtime. `prisma.config.ts` is CLI-only.
+- Prisma 7 generator: use `provider = "prisma-client"` (not `"prisma-client-js"`), set explicit `output`, import from `../generated/prisma/client` (no barrel index)
+- `@nestjs/platform-socket.io` must be installed separately — not included in `@nestjs/websockets`
+- `dotenv` must use `override: true` in test setup — direnv loads `.env` first and blocks `.env.test` values otherwise
+- `resetDatabase()` uses `execSync` (sync) — do not `await` it
+- **`main.ts` must guard `bootstrap()` with `require.main === module`** — Jest imports `createApp` from `main.ts`, which executes the module top-level. Without the guard, `bootstrap()` fires a second full NestJS app that never gets closed, causing Jest to hang with open handles.
+- **Raw `pg` Client (LISTEN/NOTIFY) requires careful teardown** — attach `.on("error", ...)` before calling `.connect()`, chain the LISTEN query inside the connect promise, and `await` the full connect+LISTEN promise in `onModuleDestroy` before calling `end()`. Without this, `end()` interrupts an in-flight query and throws `Connection terminated`.

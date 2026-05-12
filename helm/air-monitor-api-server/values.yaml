@@ -1,0 +1,33 @@
+replicaCount: 1
+
+image:
+  # Replace with your ECR repository URL
+  repository: <ECR_REPO_PLACEHOLDER>
+  pullPolicy: IfNotPresent
+  # Overridden at deploy time: helm upgrade --set image.tag=$(cat VERSION)
+  tag: "0.1.0"
+
+service:
+  type: ClusterIP
+  port: 3000
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+# Name of the existing Kubernetes secret containing database credentials.
+# Must exist in the same namespace before deploying.
+# Expected keys: DATABASE_URL
+existingSecret: air-monitor-db-credentials
+
+# Additional environment variables (non-sensitive)
+env:
+  NODE_ENV: production
+  PORT: "3000"
+
+# Namespace must be created before deploying
+namespace: air-monitor
