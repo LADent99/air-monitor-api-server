@@ -3,6 +3,7 @@ generator client {
     output   = "../src/generated/prisma"                                                                                                                                                                                                                                                                                    
   }
 
+// DATABASE_URL is supplied via prisma.config.ts, not inline here
 datasource db {
   provider = "postgresql"
 }

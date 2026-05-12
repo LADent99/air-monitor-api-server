@@ -19,7 +19,7 @@ export async function createApp() {
 
 async function bootstrap() {
   const app = await createApp();
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(parseInt(process.env.PORT ?? "3000", 10));
 }
 
 if (require.main === module) {

@@ -15,7 +15,7 @@ const ALLOWED_FIELDS = new Set([
 ]);
 
 type HistoryRow = {
-  bucket: Date;
+  bucket: string;
   value: number | null;
 };
 

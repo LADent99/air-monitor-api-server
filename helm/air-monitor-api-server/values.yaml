@@ -32,6 +32,9 @@ env:
 ingress:
   enabled: true
   host: air-monitor-api.chomby.net
+  ipWhitelist:
+    - 10.42.0.0/16   # k3s pod CIDR
+    - 192.168.0.0/24 # home LAN
 
 # Namespace must be created before deploying
 namespace: air-monitor

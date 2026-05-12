@@ -23,10 +23,11 @@ export class HttpExceptionFilter implements ExceptionFilter {
         ? exception.message
         : "Internal server error";
 
-    this.logger.warn(`${request.method} ${request.url} → ${status}: ${message}`);
-
-    if (!(exception instanceof HttpException)) {
-      this.logger.error(exception);
+    if (exception instanceof HttpException) {
+      this.logger.warn(`${request.method} ${request.url} → ${status}: ${message}`);
+    } else {
+      const stack = exception instanceof Error ? exception.stack : String(exception);
+      this.logger.error(`${request.method} ${request.url} → 500: ${message}\n${stack}`);
     }
 
     response.status(status).json({

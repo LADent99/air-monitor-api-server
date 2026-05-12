@@ -30,9 +30,15 @@ function databaseUrlValidation(): void {
   }
 }
 
-/** Validate DB URL on import and configure PG pool */
-databaseUrlValidation();
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+let pool: Pool | null = null;
+
+function getPool(): Pool {
+  if (!pool) {
+    databaseUrlValidation();
+    pool = new Pool({ connectionString: process.env.DATABASE_URL });
+  }
+  return pool;
+}
 
 /**
  * Drops and re-applies all migrations on the test database.
@@ -41,7 +47,8 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL });
  * Requires DATABASE_URL in env to point at the test DB (not production).
  * Recommended: load .env.test before running integration tests.
  */
-export function resetDatabase(): void {
+export async function resetDatabase(): Promise<void> {
+  databaseUrlValidation();
   execSync("npx prisma migrate reset --force", {
     stdio: "inherit",
     env: { ...process.env },
@@ -49,18 +56,19 @@ export function resetDatabase(): void {
 }
 
 export async function clearReadings(): Promise<void> {
-  await pool.query("TRUNCATE TABLE readings");
+  await getPool().query("TRUNCATE TABLE readings");
 }
 
 export async function closePool(): Promise<void> {
-  await pool.end();
+  await getPool().end();
+  pool = null;
 }
 
 export async function insertData(
   reading: z.infer<typeof ReadingSchema>,
 ): Promise<void> {
   try {
-    await pool.query(
+    await getPool().query(
       `INSERT INTO readings (time, location, temperature, humidity, pm1_0, pm2_5, pm4_0, pm10_0, co2, voc_index, nox_index) VALUES ($1, $2, $3, $4, $5, $6, $7, $8,$9, $10, $11)`,
       [
         reading.time,
@@ -77,7 +85,7 @@ export async function insertData(
       ],
     );
   } catch (err) {
-    throw new Error(`insertData failed: ${err}`);
+    throw new Error(`insertData failed: ${err}`, { cause: err });
   }
 }
 
