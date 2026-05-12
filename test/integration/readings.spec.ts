@@ -35,7 +35,7 @@ describe("Readings (integration)", () => {
   let app: INestApplication;
 
   beforeAll(async () => {
-    resetDatabase();
+    await resetDatabase();
     app = await createApp();
     await app.init();
   });
