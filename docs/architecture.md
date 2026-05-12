@@ -1,6 +1,6 @@
 # air-monitor-api-server – Architecture
 
-*Created: 2026-05-09. Last updated: 2026-05-09.*
+*Created: 2026-05-09. Last updated: 2026-05-11.*
 *Update this document whenever a significant architectural decision changes.*
 
 ## Overview
@@ -17,6 +17,7 @@ REST + WebSocket API server for an air quality monitoring platform. Reads sensor
 | `ReadingsGateway` | socket.io WebSocket, pushes live readings to subscribed clients | ReadingsService, pg LISTEN/NOTIFY |
 | `ReadingsService` | Business logic; Prisma queries for standard reads, raw SQL for TimescaleDB features | PrismaService, pg client |
 | `PrismaService` | Thin wrapper extending PrismaClient; handles lifecycle | TimescaleDB |
+| `HttpExceptionFilter` | Global exception filter; consistent JSON error shape, logs all errors with context | — |
 | pg NOTIFY listener | Dedicated `pg` client that LISTENs on a channel; emits events to the gateway | TimescaleDB, ReadingsGateway |
 
 ## Data Flow
@@ -56,7 +57,8 @@ The ingestor writes to TimescaleDB and triggers a PostgreSQL NOTIFY. The API ser
 | Node 22 LTS Alpine | Node 20, Debian | Current LTS; Alpine minimises image size; no native addon requirements |
 | Hand-deploy via Helm | GitHub Actions CD | Solo project; automation overhead not justified yet |
 | Jest + real TimescaleDB for integration tests | Mocks, SQLite | Mocks diverge from production behaviour; TimescaleDB hypertable semantics must be tested against real instance |
-| Full DB drop + migrate reset between test suites | Truncate tables | Truncating TimescaleDB hypertables has edge cases; migration reset is authoritative and clean |
+| Full DB drop + migrate reset once per suite, TRUNCATE between tests | Truncate only, or reset between every test | Migration reset is authoritative and clean; per-test truncate is fast enough for isolation without the overhead of full reset each time |
+| Traefik ingress with IP whitelist middleware | No ingress, nginx | Traefik already in cluster; IP whitelist via CRD middleware keeps the service private without application-level auth |
 
 ## Known Gaps & Future Decisions
 
@@ -64,7 +66,8 @@ The ingestor writes to TimescaleDB and triggers a PostgreSQL NOTIFY. The API ser
 - **Authentication/Authorization:** No auth on REST or WebSocket endpoints yet. TBD — depends on frontend requirements.
 - **Rate limiting:** No rate limiting on REST endpoints. Needed before public exposure.
 - **CI pipeline:** Currently hand-deployed. GitHub Actions pipeline is a future consideration.
-- **ECR repository URL:** Placeholder in Dockerfile and Helm values — fill in before first deploy.
+- **ECR repository URL:** Configured in Helm values and Dockerfile. ✓ Done.
+- **Ingress:** Traefik ingress with TLS (cert-manager) and IP whitelist middleware deployed. ✓ Done.
 
 ## Deployment Architecture
 
@@ -76,8 +79,9 @@ k3s cluster
     ├── ingestor (existing)
     ├── air-monitor-api-server (this service)
     │   ├── Deployment (1 replica)
-    │   └── Service (ClusterIP)
-    └── [ingress — TBD]
+    │   ├── Service (ClusterIP :3000)
+    │   ├── Ingress (Traefik, TLS via cert-manager)
+    │   └── Middleware (IP whitelist + HTTPS redirect)
 
 postgres namespace
     └── TimescaleDB (existing, accessed via cluster-internal DNS)
