@@ -20,9 +20,7 @@
     "strictBindCallApply": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
-    "noFallthroughCasesInSwitch": true,
-    "noEmit": true
+    "noFallthroughCasesInSwitch": true
   },
-  "include": ["src/**/*", "test/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "exclude": ["node_modules", "dist", "test", "**/*.spec.ts"]
 }

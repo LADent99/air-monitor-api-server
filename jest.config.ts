@@ -14,7 +14,7 @@ const config: Config = {
     {
       displayName: 'integration',
       testMatch: ['<rootDir>/test/integration/**/*.spec.ts'],
-      transform: { '^.+\\.ts$': 'ts-jest' },
+      transform: { '^.+\\.ts$': ['ts-jest', { tsconfig: 'tsconfig.test.json' }] },
       moduleFileExtensions: ['ts', 'js', 'json'],
       testTimeout: 30000,
       moduleNameMapper,
