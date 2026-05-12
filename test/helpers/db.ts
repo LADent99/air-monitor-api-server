@@ -76,9 +76,8 @@ export async function insertData(
         reading.nox_index,
       ],
     );
-    // console.info("Inserted reading: ", reading);
   } catch (err) {
-    console.error("Failed to insert reading: ", err);
+    throw new Error(`insertData failed: ${err}`);
   }
 }
 
