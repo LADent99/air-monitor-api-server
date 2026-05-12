@@ -1,0 +1,19 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: wireguard-and-home-ip-whitelist
+  namespace: {{ .Values.namespace }}
+spec:
+  ipWhiteList:
+    sourceRange:
+      {{- toYaml .Values.ingress.ipWhitelist | nindent 6 }}
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: redirect
+  namespace: {{ .Values.namespace }}
+spec:
+  redirectScheme:
+    scheme: https
+    permanent: true

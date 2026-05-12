@@ -1,0 +1,39 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"const inp=JSON.parse(process.env.CLAUDE_TOOL_INPUT||'{}'); const cmd=inp.command||''; const blocked=[['git push --force','Force push is blocked. Push normally or ask Lucas to force push manually.'],['prisma migrate','Running migrations is blocked. Lucas runs migrations manually.'],['helm upgrade','Helm deploys are blocked. Lucas deploys manually.'],['helm install','Helm installs are blocked. Lucas deploys manually.']]; for(const [pat,msg] of blocked){if(cmd.includes(pat)){console.error(msg);process.exit(2);}}\""
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"const inp=JSON.parse(process.env.CLAUDE_TOOL_INPUT||'{}'); const path=inp.file_path||''; const blocked=[['prisma/schema.prisma','Editing the Prisma schema is blocked. Lucas manages schema changes manually.'],['prisma.config.ts','Editing prisma.config.ts is blocked. Ask Lucas first.']]; for(const [pat,msg] of blocked){if(path.includes(pat)){console.error(msg);process.exit(2);}}\""
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"const f=JSON.parse(process.env.CLAUDE_TOOL_INPUT||'{}').file_path||''; if(!f.endsWith('.ts'))process.exit(0);\" && npm run build 2>&1 | tail -20"
+          },
+          {
+            "type": "command",
+            "command": "node -e \"const f=JSON.parse(process.env.CLAUDE_TOOL_INPUT||'{}').file_path||''; if(!f.endsWith('.ts'))process.exit(0);\" && npm run lint -- --fix --quiet 2>/dev/null || true"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,40 @@
+replicaCount: 1
+
+image:
+  # Replace with your ECR repository URL
+  repository: public.ecr.aws/a4k2o7c7/air-monitor-api-server
+  pullPolicy: Always
+  # Overridden at deploy time: helm upgrade --set image.tag=$(cat VERSION)
+  tag: "0.1.0"
+
+service:
+  type: ClusterIP
+  port: 3000
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+# Name of the existing Kubernetes secret containing database credentials.
+# Must exist in the same namespace before deploying.
+# Expected keys: DATABASE_URL
+existingSecret: air-monitor-ingestor-air-monitor-ingestor
+
+# Additional environment variables (non-sensitive)
+env:
+  NODE_ENV: production
+  PORT: "3000"
+
+ingress:
+  enabled: true
+  host: air-monitor-api.chomby.net
+  ipWhitelist:
+    - 10.42.0.0/16   # k3s pod CIDR
+    - 192.168.0.0/24 # home LAN
+
+# Namespace must be created before deploying
+namespace: air-monitor
